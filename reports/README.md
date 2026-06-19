@@ -33,6 +33,7 @@ Transmission & Distribution* peer index.
 | 2 | Randl/Zechner peer groups — deep dive | [`02_randl_zechner_peer_groups_deep-dive.md`](02_randl_zechner_peer_groups_deep-dive.md) |
 | 3 | German legal battle — deep dive | [`03_german_legal_battle_deep-dive.md`](03_german_legal_battle_deep-dive.md) |
 | 4 | Methodology comparison — deep dive | [`04_methodology_comparison_deep-dive.md`](04_methodology_comparison_deep-dive.md) |
+| 6 | Beta & implied returns — methods chapter *(DE)* | [`06_beta_und_implizite_renditen_deep-dive.md`](06_beta_und_implizite_renditen_deep-dive.md) |
 
 ## Key findings at a glance
 
