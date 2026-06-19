@@ -135,50 +135,71 @@ PDF-Tabellen vor.** Daher zwei nutzbare Wege im Modell:
 
 ## Peer Group & Beta-Berechnung (`wacc/beta.py`)
 
-Randl/Zechner leiten das Beta nicht als Einzelwert ab, sondern aus einer **Peer
-Group** börsennotierter Vergleichsnetzbetreiber — exakt der Schritt, den du mit
-**Bloomberg-Rohdaten** selbst nachbauen kannst. Die Kette:
+Randl/Zechner leiten das Beta aus einer **Peer Group** börsennotierter Vergleichs-
+netzbetreiber ab — exakt der Schritt, den du mit **Bloomberg-Rohdaten** selbst
+nachbaust. Die fünfstufige Kette (`estimate_beta`):
 
 ```
-1. Roh-Beta je Peer        (Bloomberg-Regression gegen Marktindex)
-2. Adjustment (optional)   β_adj = 2/3·β_raw + 1/3        (Bloomberg/Blume)
-3. Unlevering je Peer       β_asset = β_equity / (1 + D/E)   (Harris/Pringle)
-                            β_asset = β_equity / (1 + (1−T)·D/E)  (Hamada)
-4. Aggregation              Median (Standard) oder Mittelwert der Asset-Betas
-5. Re-Levering              β_equity* = β_asset · (1 + D/E_reg)   @ Gearing 40/60
+1. Roh-Beta je Peer    OLS-Regression Aktienrendite ~ Marktindex (Bloomberg)
+2. Adjustment          Vasicek (Bayes-Shrinkage z. Prior) | Blume (⅔β+⅓) | roh
+3. Unlevering je Peer  Modigliani-Miller/Hamada: β_a = β_e/(1+(1−T)·D/E), Debt-β 0
+4. Aggregation         arithm. Mittel | Median der Asset-Betas
+5. Re-Levering         β_e* = β_a·(1+(1−T)·D/E_reg)   @ Gearing 40/60 (D/E=1,5)
 ```
 
-**Verwendung mit Bloomberg-Daten:**
+**Recherchierte Methodik je Regime** (Quelle: Gutachten, s. [`SOURCES.md`](SOURCES.md);
+firewall-bedingt aus Index-Snippets, vor Verwendung gegen PDF prüfen):
+
+| Schritt | 🇩🇪 BNetzA (R/Z 4. P.) | 🇦🇹 E-Control (R/Z) |
+|---|---|---|
+| Frequenz/Fenster | wöchentlich, 2 & 3 J. | wöchentlich, 5/3/1 J. (Basis 5) |
+| Referenzindex | lokaler Heimatmarkt-Index | MSCI World (USD) |
+| Adjustment | Vasicek (3. P.: roh) | Vasicek |
+| Unlevering | Modigliani-Miller, Debt-β 0 | Modigliani-Miller, Debt-β 0 |
+| Aggregation | arithm. Mittel (11 Peers) | Mittel (Gutachten: „Mittel o. Median") |
+| Re-Levering | 40/60, Steuer des Festlegungsjahres | 40/60, KöSt 25 %→23 % |
+
+Diese Profile sind als `BNETZA_P3`, `BNETZA_P4`, `ECONTROL` (`wacc/beta.py`)
+hinterlegt — `profil.estimate(peer_group, target_tax_rate)` setzt alle Schalter.
+
+**Validierung gegen dokumentierte Anker-Betas** (Re-Levering, `pytest`-getestet):
+
+| Regime | Asset-β (dok.) | → Equity-β (Modell) | veröffentlicht |
+|---|---|---|---|
+| E-Control (regulatorisch fix) | 0,325 | **0,700** | ~0,69–0,70 |
+| BNetzA 3. Periode | 0,40 | **0,82** | 0,83 |
+| BNetzA 4. Periode | 0,40 | **0,82** | 0,81 |
+
+**Verwendung mit Bloomberg-Daten** (Vasicek braucht den Standardfehler je Beta):
 
 ```python
-from wacc.cases.peer_groups import gas_fernleitung_2023
-from wacc.beta import estimate_beta, UnleverMethod
+from wacc.cases.peer_groups import gas_fernleitung
+from wacc.beta import ECONTROL
 
-# Roh-Betas (z.B. BETA_RAW_OVERRIDABLE) + Gearing (Net Debt / Equity) aus Bloomberg:
-pg = gas_fernleitung_2023({
-    "Snam":           {"raw_beta": 0.62, "gearing": 0.58, "tax_rate": 0.24},
-    "Enagás":         {"raw_beta": 0.70, "gearing": 0.55, "tax_rate": 0.25},
-    "Italgas":        {"raw_beta": 0.66, "gearing": 0.60, "tax_rate": 0.24},
-    "Fluxys Belgium": {"raw_beta": 0.55, "gearing": 0.50, "tax_rate": 0.25},
-    "National Grid":  {"raw_beta": 0.64, "gearing": 0.52, "tax_rate": 0.19},
-    "REN":            {"raw_beta": 0.60, "gearing": 0.62, "tax_rate": 0.21},
-})
-est = estimate_beta(pg, target_gearing=0.60, adjusted=True,
-                    method=UnleverMethod.HARRIS_PRINGLE, aggregation="median")
+pg = gas_fernleitung({   # Roh-Beta, Std.-Fehler, Marktwert-Gearing aus Bloomberg
+    "Snam":           {"raw_beta": 0.62, "beta_std_error": 0.07, "gearing": 0.58, "tax_rate": 0.24},
+    "Enagás":         {"raw_beta": 0.70, "beta_std_error": 0.08, "gearing": 0.55, "tax_rate": 0.25},
+    # ... Italgas, Fluxys Belgium, National Grid, REN, A2A
+}, year=2023)
+est = ECONTROL.estimate(pg, target_tax_rate=0.23)   # MM + Vasicek + Mittel, 40/60
 print(est.summary())          # Zerlegung je Peer + Asset-Beta + Equity-Beta
-# est.asset_beta -> in template_case(..., asset_beta=est.asset_beta) einsetzen
+# est.equity_beta -> template_case(..., equity_beta=est.equity_beta)
 ```
 
-**Verifizierte Peer Group — E-Control Gas-Fernleitung 2023** (Bloomberg-Index
-`BIEGTRDT`): Snam (IT), Enagás (ES), Italgas (IT), Fluxys Belgium (BE), National
-Grid (GB), REN (PT). Weitere Gruppen (Strom-Übertragung/-Verteilung, BNetzA)
-werden ergänzt, sobald die Namen aus den Gutachten bestätigt sind.
+**Peer Groups** (Recherche, mit Konfidenz — in `wacc/cases/peer_groups.py`):
 
-**Noch zu bestätigen (aus den Gutachten, siehe [`SOURCES.md`](SOURCES.md)):**
-Schätzfenster (z.B. 5 J. monatlich vs. 2 J. wöchentlich), Referenzindex,
-Roh- vs. adjustiertes Beta, Unlevering-Verfahren (Harris/Pringle vs. Hamada) und
-das Debt-Beta. Diese Schalter sind im Modul als Parameter angelegt — du stellst
-sie auf die im Gutachten dokumentierte Wahl.
+- **E-Control Gas-Fernleitung** (BIEGTRDT, *bestätigt*): Snam, Enagás, Italgas,
+  Fluxys Belgium, National Grid, REN, A2A (erweitert: Ascopiave, Centrica).
+- **E-Control Strom-Übertragung** (APG, *unsicher*): Terna, Red Eléctrica/Redeia,
+  Elia, National Grid, REN, Snam.
+- **BNetzA 3./4. Periode** (Kern *bestätigt*): Snam, Terna, Enagás, Red Eléctrica,
+  National Grid, REN, Elia; 4. P. = arithm. Mittel von **11** Unternehmen
+  (wahrsch. + Italgas, Fluxys). ⚠️ A2A/Ascopiave gehören zu E-Control, **nicht**
+  zu BNetzA.
+
+**Noch aus den PDFs zu verifizieren:** Vasicek-Prior-Gewichte, Net- vs. Gross-Debt,
+exakte Alternativ-Indizes, Debt-Beta (0 vs. positiv), vollständige Peer-Tabellen
+mit Per-Peer-Betas. Die Schalter sind als Parameter angelegt.
 
 ---
 

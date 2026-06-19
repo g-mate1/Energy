@@ -17,7 +17,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from wacc.austria import implied_equity_beta, wacc  # noqa: E402
-from wacc.beta import UnleverMethod, estimate_beta  # noqa: E402
+from wacc.beta import BNETZA_P4, ECONTROL  # noqa: E402
+from wacc.capm import UnleverMethod, relever_beta  # noqa: E402
 from wacc.cases import at_econtrol, de_bnetza, peer_groups  # noqa: E402
 from wacc.germany import ek_zinssatz  # noqa: E402
 
@@ -90,32 +91,52 @@ def austria_calibration_demo() -> None:
     print()
 
 
-def beta_demo() -> None:
+def beta_anchor_table() -> None:
     print("=" * 78)
-    print("PEER-GROUP-BETA — Randl/Zechner-Methodik (ILLUSTRATIVE Bloomberg-Werte)")
+    print("BETA — Re-Levering der dokumentierten Asset-Betas (Validierung)")
     print("=" * 78)
-    print("Beispiel: E-Control Gas-Fernleitung 2023 (Bloomberg-Index BIEGTRDT).")
-    print("Roh-Betas/Gearing hier PLATZHALTER — durch echte Bloomberg-Pulls ersetzen.\n")
-    group = peer_groups.illustrative_gas_fernleitung_2023()
-    est = estimate_beta(
-        group, target_gearing=at_econtrol.GEARING, target_tax_rate=0.0,
-        method=UnleverMethod.HARRIS_PRINGLE, adjusted=True, aggregation="median",
-    )
-    print(est.summary())
-    print(f"\nVergleich Aggregation: Asset-Beta Median={est.extras['asset_beta_median']:.3f}"
-          f"  Mean={est.extras['asset_beta_mean']:.3f}")
+    # E-Control: regulatorisch fixiertes Asset-Beta 0,325 -> Equity-Beta @ 40/60, KöSt.
+    ec = relever_beta(peer_groups.ECONTROL_REG_ASSET_BETA, debt_to_equity=1.5, tax_rate=0.23,
+                      method=UnleverMethod.HAMADA)
+    # BNetzA: Asset-Beta 0,40 -> Equity-Beta @ 40/60, dt. Ertragsteuer ~30 %.
+    de = relever_beta(peer_groups.BNETZA_ASSET_BETA, debt_to_equity=1.5, tax_rate=0.30,
+                      method=UnleverMethod.HAMADA)
+    print(f"{'Regime':<26}{'Asset-β':>9}{'Steuer':>8}{'→ Equity-β':>12}{'(dok.)':>12}")
+    print("-" * 78)
+    print(f"{'E-Control (reg.)':<26}{peer_groups.ECONTROL_REG_ASSET_BETA:>9.3f}"
+          f"{'23%':>8}{ec:>12.3f}{'~0,69–0,70':>12}")
+    print(f"{'BNetzA 3. Periode':<26}{peer_groups.BNETZA_ASSET_BETA:>9.3f}"
+          f"{'~30%':>8}{de:>12.3f}{'0,83':>12}")
+    print(f"{'BNetzA 4. Periode':<26}{peer_groups.BNETZA_ASSET_BETA:>9.3f}"
+          f"{'~30%':>8}{de:>12.3f}{'0,81':>12}")
+    print("-" * 78)
+    print("Modigliani-Miller (Hamada), Debt-Beta 0, Gearing 40/60 (D/E=1,5).")
+    print("Veröffentlichte Equity-Betas (0,81–0,83 DE; ~0,69 AT) werden reproduziert.")
+    print()
 
-    # Volle Kette: geschätztes Asset-Beta -> AT-WACC (illustrative Restparameter).
+
+def beta_pipeline_demo() -> None:
+    print("=" * 78)
+    print("PEER-GROUP-BETA — volle Kette (ILLUSTRATIVE Bloomberg-Werte)")
+    print("=" * 78)
+    print("Beispiel: E-Control Gas-Fernleitung (BIEGTRDT), Profil Randl/Zechner")
+    print("(Modigliani-Miller + Vasicek + Mittelwert). Roh-Betas/SE/Gearing PLATZHALTER.\n")
+    group = peer_groups.illustrative_gas_fernleitung()
+    est = ECONTROL.estimate(group, target_tax_rate=0.23)
+    print(est.summary())
+    print(f"\nAsset-Beta Mittelwert={est.extras['asset_beta_mean']:.3f}  "
+          f"Median={est.extras['asset_beta_median']:.3f}")
+
     case = at_econtrol.template_case(
         sector="Gas", network_level="Fernleitung", asset_type="Neuinvestition",
         year=2024, risk_free=0.0308, debt_premium=0.0104, inflation=0.02,
-        asset_beta=est.asset_beta,
+        equity_beta=est.equity_beta,   # fertig re-leveragtes Beta direkt einsetzen
     )
     r = wacc(case)
     print("\nEingesetzt in E-Control-WACC (illustrativ): "
           f"Equity-Beta={r.equity_beta:.3f} -> "
           f"CoE n.St.={pct(r.coe_after_tax)}, WACC real v.St.={pct(r.wacc_real_pretax)}")
-    print("(Restparameter r_f/Debt-Premium/Inflation hier Platzhalter.)")
+    print("(r_f/Debt-Premium/Inflation hier Platzhalter; Beta-Inputs aus Bloomberg.)")
     print()
 
 
@@ -123,7 +144,8 @@ def main() -> None:
     germany_table()
     austria_published_table()
     austria_calibration_demo()
-    beta_demo()
+    beta_anchor_table()
+    beta_pipeline_demo()
 
 
 if __name__ == "__main__":

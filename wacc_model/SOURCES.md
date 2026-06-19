@@ -57,3 +57,35 @@ der Netzwerk-Policy der Umgebung freischalten).
 | Debt Premium / FK-Kosten-Zerlegung | Anlage 4; WACC Neuinvestitionen 2025 |
 | Inflationsannahme | Anlage 4; 02c Annex |
 | Strom-Übertragung (APG) Detailwerte | RandlZechner Stromübertragung 04.10.2022 |
+
+## Beta-Methodik & Peer Groups
+
+**Recherche-Hinweis:** Methodik mehrfach unabhängig aus Index-Snippets bestätigt;
+Per-Peer-Beta-Tabellen lagen im nicht-indexierten PDF-Rumpf → zellgenau aus den
+PDFs zu verifizieren. Erfundene Beta-Zahlen wurden vermieden.
+
+**E-Control (Randl/Zechner):** wöchentliche Renditen, 5/3/1-Jahres-Fenster (Basis
+5 J.), Index **MSCI World (USD)** (Varianten MSCI ACWI / MSCI World EUR), **Vasicek**-
+Adjustment (Prior = Mittel eines breiten Utility-Samples, Bloomberg World Utilities
+Index; enges Sample Rating ≥ A−), **Modigliani-Miller**-Unlevering (Debt-β 0),
+Marktwert-Gearing, **arithm. Mittel** (Gutachten: „Mittel oder Median"), Re-Levering
+40/60 mit KöSt 25 %→23 %. Regulatorisches Asset-Beta **0,325** (illustrativ 0,41).
+- Gas-FL 2019: `…/GutachtenRandlZechner20191103_KapitalkostenGasfernleitungsbetreiber+(3).pdf`
+- Gas-FL 2023: `…/Gutachten_WACC_Gas-Fernleitungsnetzbetreiber_RandlZechner_20231111.cleaned.pdf`
+- Gutachten WACC 4. RP (02_3): https://www.e-control.at/documents/1785851/1811582/02_3_Gutachten+WACC+(1).pdf
+- Strom-Übertragung (APG) 04.10.2022: `…/RandlZechner_AktualisierungGutachten_Stromübertragungsnetzbetreiber_20221004.pdf`
+
+**BNetzA:** 4. P. (Randl/Zechner) wöchentlich, 2 & 3 J., **lokaler** Index, **Vasicek**,
+**Modigliani-Miller** (Debt-β 0), **ungewichtetes arithm. Mittel von 11 Peers**,
+Re-Levering 40/60 mit Steuersatz des Festlegungsjahres → Asset-β 0,40 → Equity-β 0,81.
+3. P. (Frontier 2016): roh OLS, Sektorindizes DJ EuroStoxx Utilities + CDAX Utilities,
+10 J. wöchentlich, Sektor-β 0,722 → Asset-β 0,40 → Equity-β 0,83.
+- Randl/Zechner/Frontier 4. RP: `…/Anreizregulierung/Gutachten/GutachtenZuschlägeWagnisse.pdf`
+- Frontier 3. RP (public): https://www.frontier-economics.com/media/1055/20160706_wissenschaftliches-gutachten-wagniszuschlag-strom-und-gasnetzbetreiber_frontier.pdf
+- Methodenbericht Zins 2021 (gleiche Autoren, Eisenbahn): `…/Eisenbahn/…/MethodenberichtZins2021.pdf`
+- WU Wien Haug/Wieshammer (Peer-Sample, n≈14): https://www.wu.ac.at/fileadmin/wu/d/ri/regulation/Workshops_Konferenzen/WS_2016/Haug_Pr%C3%A4sentation_Workshop_2016.pdf
+
+**Peer Groups:** Gas-FL (BIEGTRDT) bestätigt: Enagás, Fluxys Belgium, Italgas,
+National Grid, REN, Snam, A2A (+ Ascopiave, Centrica erweitert). BNetzA-Kern
+(bestätigt): Snam, Terna, Enagás, Red Eléctrica/Redeia, National Grid, REN, Elia.
+⚠️ A2A/Ascopiave = E-Control (AT), NICHT BNetzA.

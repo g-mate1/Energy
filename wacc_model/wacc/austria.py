@@ -59,7 +59,8 @@ class AustrianCase:
     equity_beta: float | None = None
     # ... oder Asset-Beta (wird auf das regulatorische Gearing re-leveraged).
     asset_beta: float | None = None
-    unlever_method: UnleverMethod = UnleverMethod.HARRIS_PRINGLE
+    # Randl/Zechner nutzen Modigliani-Miller (Hamada) zum Re-Levering -> Default.
+    unlever_method: UnleverMethod = UnleverMethod.HAMADA
 
     # Referenz / Validierung.
     source: str = ""

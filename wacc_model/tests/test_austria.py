@@ -54,14 +54,14 @@ def test_wacc_pretax_above_posttax():
 
 
 def test_asset_beta_relevering():
-    """Asset-Beta wird auf Gearing 40/60 (D/E=1,5) re-leveraged."""
+    """Asset-Beta wird per Modigliani-Miller (Hamada) auf 40/60 re-leveraged."""
     case = at_econtrol.template_case(
         sector="Strom", network_level="Verteilung", asset_type="Bestand",
         year=2024, risk_free=0.03, debt_premium=0.01, inflation=0.02, asset_beta=0.40,
     )
     r = wacc(case)
-    # Harris/Pringle: beta_e = 0.40 * (1 + 1.5) = 1.00
-    assert r.equity_beta == pytest.approx(1.00, abs=1e-12)
+    # Hamada: beta_e = 0.40·(1 + (1−0,23)·1,5) = 0.40·2,155 = 0,862
+    assert r.equity_beta == pytest.approx(0.40 * (1 + (1 - 0.23) * 1.5), abs=1e-12)
 
 
 def test_published_reference_data_present():
