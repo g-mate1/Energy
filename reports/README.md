@@ -13,6 +13,7 @@ methodological context surrounding it.
 | 3 | The German legal battle over the network equity return | [`03_german_legal_battle.md`](03_german_legal_battle.md) |
 | 4 | Comparison of regulatory cost-of-capital methodologies: EU, US, UK, Asia | [`04_methodology_comparison.md`](04_methodology_comparison.md) |
 | 5 | Replicating the ECB's derivation of market returns (multi-stage DDM) | [`05_ecb_market_return_ddm.md`](05_ecb_market_return_ddm.md) |
+| 6 | Methodological extensions: beta estimation & applying implied returns *(in German)* | [`06_beta_und_implizite_renditen_methodische_erweiterungen.md`](06_beta_und_implizite_renditen_methodische_erweiterungen.md) |
 
 ### Deep-dive companions
 
@@ -77,6 +78,18 @@ this to uploaded multi-share analyst estimates, pulls the risk-free rate live
 from the **Deutsche Bundesbank API**, and weight-aggregates every variant to a
 market return. Code: [`../code/`](../code/) (engine, app, Bundesbank client).
 
+**6 — Beta & implied-return extensions (DE).** A methodological deep-dive (in
+German) on extending the Report 2 beta machinery and applying the Report 5
+implied returns. Part A: the **temporally rolling beta** (a rolling-window beta
+*time series* summarised by a trailing average rather than a single Stichtag
+value, as the UK regulators do), plus state-space/Kalman & DCC-GARCH conditional
+betas, rule-based handling of **temporary crisis distortions** (COVID-2020,
+energy-crisis-2022), and Dimson/Blume/Vasicek corrections. Part B: applying
+**implied returns** — implied vs. historical MRP, the **reverse-CAPM implied
+("forward-looking") beta**, and the time-consistent coupling
+`k_{i,t}=rf_t+β_{i,t}·ERP_impl,t` with its pro-cyclicality caveat. Runnable in
+[`../code/beta_tools.py`](../code/beta_tools.py).
+
 ## How the reports connect
 
 The reports are designed to be read together:
@@ -95,6 +108,10 @@ The reports are designed to be read together:
   counterpart to Report 1: a runnable replication of the ECB's multi-stage DDM derivation of
   the expected equity market return and ERP — the same family as the US DCF approach in
   Report 4, and a cross-check on the DMS history that anchors the regulatory TMR.
+- **Report 6 (beta & implied-return extensions, DE)** ties Reports 2 and 5 together: it
+  extends the peer-group beta estimation (temporally rolling / time-varying betas, crisis
+  handling) and shows how the implied returns of Report 5 are applied (implied MRP, reverse-
+  CAPM implied beta, and a consistent time-varying cost-of-equity panel).
 
 ## Sources and verification
 

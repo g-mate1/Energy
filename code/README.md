@@ -13,6 +13,7 @@ across the methodological DDM variants the ECB uses. Methodology write-up:
 | `ecb_market_return.py` | Standalone, single-aggregate replication of the ECB euro-area derivation (prints results + a sensitivity grid). Imports `ddm_engine`. |
 | `app.py` | **Streamlit app**: upload estimates, pull/upload the risk-free rate, choose weights, compute every variant per share and for the weighted market. |
 | `bundesbank.py` | Client for the Deutsche Bundesbank SDMX REST API (German government-bond yields / Umlaufsrendite / full curve). |
+| `beta_tools.py` | Beta extensions (report 6): temporally **rolling-window beta** + trailing-average summary, Blume/Vasicek/Dimson adjustments, rule-based crisis-window exclusion, and the **reverse-CAPM implied beta** from DDM-implied costs of equity. Run `python3 beta_tools.py` for the demo. |
 | `sample_data/` | `analyst_estimates.csv` (the European energy-network peer group) and `risk_free.csv` (a German curve). |
 | `requirements.txt` | `streamlit`, `pandas`, `requests`. |
 
