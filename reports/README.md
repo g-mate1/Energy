@@ -13,6 +13,25 @@ methodological context surrounding it.
 | 3 | The German legal battle over the network equity return | [`03_german_legal_battle.md`](03_german_legal_battle.md) |
 | 4 | Comparison of regulatory cost-of-capital methodologies: EU, US, UK, Asia | [`04_methodology_comparison.md`](04_methodology_comparison.md) |
 
+### Deep-dive companions
+
+Each report has a deep-dive companion (~2.5–4.5× longer) that expands every chapter
+and adds an annotated review of the cited literature/primary sources. Each was built
+by a team of parallel research sub-agents, one per chapter. Where firmer sources were
+found, the deep-dives **refine or correct** the base reports (corrections are noted in
+the deep-dive text) — e.g. the 4th-period existing-asset rate is **3.51% uniform** (the
+3.03% gas figure was the July-2021 draft / the EK-II tranche rate); ECJ C-718/18 was
+decided by the **Fourth Chamber**; the Randl/Zechner asset beta is **~0.34–0.42**,
+re-levered to the 0.81 equity beta; "BIEGTRDT" is Bloomberg's *BI Europe Gas
+Transmission & Distribution* peer index.
+
+| # | Deep dive | File |
+|---|-----------|------|
+| 1 | DMS dataset — deep dive | [`01_historic_returns_dms_deep-dive.md`](01_historic_returns_dms_deep-dive.md) |
+| 2 | Randl/Zechner peer groups — deep dive | [`02_randl_zechner_peer_groups_deep-dive.md`](02_randl_zechner_peer_groups_deep-dive.md) |
+| 3 | German legal battle — deep dive | [`03_german_legal_battle_deep-dive.md`](03_german_legal_battle_deep-dive.md) |
+| 4 | Methodology comparison — deep dive | [`04_methodology_comparison_deep-dive.md`](04_methodology_comparison_deep-dive.md) |
+
 ## Key findings at a glance
 
 **1 — DMS historic returns.** The Dimson–Marsh–Staunton dataset (now the *UBS Global
