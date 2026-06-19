@@ -146,6 +146,32 @@ The two are complements, not substitutes. Regulators that anchor on DMS history 
 
 ---
 
+## 5a. Interactive calculator (upload your own estimates)
+
+For working with live, multi-security data rather than the single euro-area
+aggregate above, the repo includes a **Streamlit app** —
+[`../code/app.py`](../code/app.py). It lets you:
+
+- **upload a CSV** of per-share analyst estimates and prices (dividend yield or
+  dividend, near-term growth, optional terminal growth, buybacks, and weights);
+- **supply the risk-free rate** three ways — pulled **live from the Deutsche
+  Bundesbank SDMX API** (the German 10-year yield, the *Umlaufsrendite* that
+  BNetzA itself averages, or a full term-structure curve), uploaded as a CSV, or
+  typed in;
+- **choose the market-return weighting** (an index-weight/market-cap column or
+  equal weight); and
+- compute **all five methodological variants** (Gordon, two-stage, three-stage,
+  H-model, term-structure) for **each share** and then **weight-aggregate** to a
+  market return and ERP, with a downloadable results table.
+
+The DDM math is the shared engine in [`../code/ddm_engine.py`](../code/ddm_engine.py)
+(the same module this report's standalone replication uses). Run it with
+`pip install -r code/requirements.txt && streamlit run code/app.py`; see
+[`../code/README.md`](../code/README.md) for the input schema and the Bundesbank
+series keys.
+
+---
+
 ## 6. Caveats and how to refresh
 
 - **Illustrative inputs.** The headline ~8% return / ~5.4% ERP depend on the four inputs in §3. For a live estimate, replace the dividend/payout yield, IBES short-term growth, SPF long-run growth and the OIS curve with current data and re-run the script. The sensitivity grid (§4.1) shows the swing.

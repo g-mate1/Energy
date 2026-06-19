@@ -71,8 +71,11 @@ OIS rate to get the ERP. On illustrative June-2026 euro-area inputs (3.2% divide
 IBES near-term growth, 3.3% long-run nominal GDP growth, 2.6% OIS) the three-stage DDM, the
 closed-form Fuller–Hsia H-model and the ECB term-structure form all imply a **~8% expected
 nominal market return and a ~5.4% equity risk premium** (~6.8% with buybacks). This is the
-forward-looking counterpart to Report 1's backward-looking DMS history. Code:
-[`../code/ecb_market_return.py`](../code/ecb_market_return.py).
+forward-looking counterpart to Report 1's backward-looking DMS history. An
+accompanying **Streamlit app** ([`../code/app.py`](../code/app.py)) generalises
+this to uploaded multi-share analyst estimates, pulls the risk-free rate live
+from the **Deutsche Bundesbank API**, and weight-aggregates every variant to a
+market return. Code: [`../code/`](../code/) (engine, app, Bundesbank client).
 
 ## How the reports connect
 
