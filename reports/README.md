@@ -12,6 +12,7 @@ methodological context surrounding it.
 | 2 | Peer groups in the Randl/Zechner expert reports (German gas & electricity) | [`02_randl_zechner_peer_groups.md`](02_randl_zechner_peer_groups.md) |
 | 3 | The German legal battle over the network equity return | [`03_german_legal_battle.md`](03_german_legal_battle.md) |
 | 4 | Comparison of regulatory cost-of-capital methodologies: EU, US, UK, Asia | [`04_methodology_comparison.md`](04_methodology_comparison.md) |
+| 5 | Replicating the ECB's derivation of market returns (multi-stage DDM) | [`05_ecb_market_return_ddm.md`](05_ecb_market_return_ddm.md) |
 
 ### Deep-dive companions
 
@@ -63,9 +64,19 @@ Methodologies) vs discretion (US "battle of the models"; Germany's post-C-718/18
 Asia-Pacific is heterogeneous, from Australia's rules-based CAPM to Hong Kong's negotiated
 8%-of-assets cap.
 
+**5 — ECB market-return replication.** A runnable replication of the ECB's forward-looking,
+market-implied derivation of the equity market return — a **multi-stage Dividend Discount
+Model** that solves the index price for the implied cost of equity, then nets off the 10-year
+OIS rate to get the ERP. On illustrative June-2026 euro-area inputs (3.2% dividend yield, ~8%
+IBES near-term growth, 3.3% long-run nominal GDP growth, 2.6% OIS) the three-stage DDM, the
+closed-form Fuller–Hsia H-model and the ECB term-structure form all imply a **~8% expected
+nominal market return and a ~5.4% equity risk premium** (~6.8% with buybacks). This is the
+forward-looking counterpart to Report 1's backward-looking DMS history. Code:
+[`../code/ecb_market_return.py`](../code/ecb_market_return.py).
+
 ## How the reports connect
 
-The four reports are designed to be read together:
+The reports are designed to be read together:
 
 - **Report 1 (DMS)** explains the long-run historical return dataset that anchors the
   Total Market Return (TMR) and equity risk premium (ERP) in most CAPM-based
@@ -77,6 +88,10 @@ The four reports are designed to be read together:
   premium from Report 1 and the peer-group beta from Report 2) was central.
 - **Report 4 (international comparison)** places the German CAPM/RAB approach against the
   UK, wider EU, US (DCF/rate-of-return) and Asia-Pacific frameworks.
+- **Report 5 (ECB market-return replication)** provides the forward-looking, market-implied
+  counterpart to Report 1: a runnable replication of the ECB's multi-stage DDM derivation of
+  the expected equity market return and ERP — the same family as the US DCF approach in
+  Report 4, and a cross-check on the DMS history that anchors the regulatory TMR.
 
 ## Sources and verification
 
