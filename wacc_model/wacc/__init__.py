@@ -11,6 +11,6 @@ Gasnetze:
 * ``wacc.conversions`` — real/nominal- und Steuer-Umrechnungen.
 """
 
-from . import austria, capm, conversions, germany
+from . import austria, beta, capm, conversions, germany
 
-__all__ = ["austria", "capm", "conversions", "germany"]
+__all__ = ["austria", "beta", "capm", "conversions", "germany"]

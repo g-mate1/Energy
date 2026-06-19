@@ -133,6 +133,55 @@ PDF-Tabellen vor.** Daher zwei nutzbare Wege im Modell:
 
 ---
 
+## Peer Group & Beta-Berechnung (`wacc/beta.py`)
+
+Randl/Zechner leiten das Beta nicht als Einzelwert ab, sondern aus einer **Peer
+Group** börsennotierter Vergleichsnetzbetreiber — exakt der Schritt, den du mit
+**Bloomberg-Rohdaten** selbst nachbauen kannst. Die Kette:
+
+```
+1. Roh-Beta je Peer        (Bloomberg-Regression gegen Marktindex)
+2. Adjustment (optional)   β_adj = 2/3·β_raw + 1/3        (Bloomberg/Blume)
+3. Unlevering je Peer       β_asset = β_equity / (1 + D/E)   (Harris/Pringle)
+                            β_asset = β_equity / (1 + (1−T)·D/E)  (Hamada)
+4. Aggregation              Median (Standard) oder Mittelwert der Asset-Betas
+5. Re-Levering              β_equity* = β_asset · (1 + D/E_reg)   @ Gearing 40/60
+```
+
+**Verwendung mit Bloomberg-Daten:**
+
+```python
+from wacc.cases.peer_groups import gas_fernleitung_2023
+from wacc.beta import estimate_beta, UnleverMethod
+
+# Roh-Betas (z.B. BETA_RAW_OVERRIDABLE) + Gearing (Net Debt / Equity) aus Bloomberg:
+pg = gas_fernleitung_2023({
+    "Snam":           {"raw_beta": 0.62, "gearing": 0.58, "tax_rate": 0.24},
+    "Enagás":         {"raw_beta": 0.70, "gearing": 0.55, "tax_rate": 0.25},
+    "Italgas":        {"raw_beta": 0.66, "gearing": 0.60, "tax_rate": 0.24},
+    "Fluxys Belgium": {"raw_beta": 0.55, "gearing": 0.50, "tax_rate": 0.25},
+    "National Grid":  {"raw_beta": 0.64, "gearing": 0.52, "tax_rate": 0.19},
+    "REN":            {"raw_beta": 0.60, "gearing": 0.62, "tax_rate": 0.21},
+})
+est = estimate_beta(pg, target_gearing=0.60, adjusted=True,
+                    method=UnleverMethod.HARRIS_PRINGLE, aggregation="median")
+print(est.summary())          # Zerlegung je Peer + Asset-Beta + Equity-Beta
+# est.asset_beta -> in template_case(..., asset_beta=est.asset_beta) einsetzen
+```
+
+**Verifizierte Peer Group — E-Control Gas-Fernleitung 2023** (Bloomberg-Index
+`BIEGTRDT`): Snam (IT), Enagás (ES), Italgas (IT), Fluxys Belgium (BE), National
+Grid (GB), REN (PT). Weitere Gruppen (Strom-Übertragung/-Verteilung, BNetzA)
+werden ergänzt, sobald die Namen aus den Gutachten bestätigt sind.
+
+**Noch zu bestätigen (aus den Gutachten, siehe [`SOURCES.md`](SOURCES.md)):**
+Schätzfenster (z.B. 5 J. monatlich vs. 2 J. wöchentlich), Referenzindex,
+Roh- vs. adjustiertes Beta, Unlevering-Verfahren (Harris/Pringle vs. Hamada) und
+das Debt-Beta. Diese Schalter sind im Modul als Parameter angelegt — du stellst
+sie auf die im Gutachten dokumentierte Wahl.
+
+---
+
 ## Was noch fehlt (für die exakte AT-Replikation)
 
 Aus den E-Control-PDFs zu entnehmen (siehe [`SOURCES.md`](SOURCES.md), Doc-Nrn.):

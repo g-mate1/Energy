@@ -16,8 +16,9 @@ from pathlib import Path
 # Repo-Wurzel des Modells in den Pfad nehmen (Aufruf ohne Installation).
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from wacc.austria import implied_equity_beta  # noqa: E402
-from wacc.cases import at_econtrol, de_bnetza  # noqa: E402
+from wacc.austria import implied_equity_beta, wacc  # noqa: E402
+from wacc.beta import UnleverMethod, estimate_beta  # noqa: E402
+from wacc.cases import at_econtrol, de_bnetza, peer_groups  # noqa: E402
 from wacc.germany import ek_zinssatz  # noqa: E402
 
 
@@ -89,10 +90,40 @@ def austria_calibration_demo() -> None:
     print()
 
 
+def beta_demo() -> None:
+    print("=" * 78)
+    print("PEER-GROUP-BETA — Randl/Zechner-Methodik (ILLUSTRATIVE Bloomberg-Werte)")
+    print("=" * 78)
+    print("Beispiel: E-Control Gas-Fernleitung 2023 (Bloomberg-Index BIEGTRDT).")
+    print("Roh-Betas/Gearing hier PLATZHALTER — durch echte Bloomberg-Pulls ersetzen.\n")
+    group = peer_groups.illustrative_gas_fernleitung_2023()
+    est = estimate_beta(
+        group, target_gearing=at_econtrol.GEARING, target_tax_rate=0.0,
+        method=UnleverMethod.HARRIS_PRINGLE, adjusted=True, aggregation="median",
+    )
+    print(est.summary())
+    print(f"\nVergleich Aggregation: Asset-Beta Median={est.extras['asset_beta_median']:.3f}"
+          f"  Mean={est.extras['asset_beta_mean']:.3f}")
+
+    # Volle Kette: geschätztes Asset-Beta -> AT-WACC (illustrative Restparameter).
+    case = at_econtrol.template_case(
+        sector="Gas", network_level="Fernleitung", asset_type="Neuinvestition",
+        year=2024, risk_free=0.0308, debt_premium=0.0104, inflation=0.02,
+        asset_beta=est.asset_beta,
+    )
+    r = wacc(case)
+    print("\nEingesetzt in E-Control-WACC (illustrativ): "
+          f"Equity-Beta={r.equity_beta:.3f} -> "
+          f"CoE n.St.={pct(r.coe_after_tax)}, WACC real v.St.={pct(r.wacc_real_pretax)}")
+    print("(Restparameter r_f/Debt-Premium/Inflation hier Platzhalter.)")
+    print()
+
+
 def main() -> None:
     germany_table()
     austria_published_table()
     austria_calibration_demo()
+    beta_demo()
 
 
 if __name__ == "__main__":
