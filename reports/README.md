@@ -89,7 +89,9 @@ energy-crisis-2022), and Dimson/Blume/Vasicek corrections. Part B: applying
 **implied returns** — implied vs. historical MRP, the **reverse-CAPM implied
 ("forward-looking") beta**, and the time-consistent coupling
 `k_{i,t}=rf_t+β_{i,t}·ERP_impl,t` with its pro-cyclicality caveat. Runnable in
-[`../code/beta_tools.py`](../code/beta_tools.py).
+[`../code/beta_tools.py`](../code/beta_tools.py); an interactive **R Shiny app**
+(beta variants + the four implied-market-return models, with example data) is in
+[`../r_app/`](../r_app/) (`shiny::runApp("r_app")`).
 
 ## How the reports connect
 
